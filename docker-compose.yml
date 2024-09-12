@@ -1,0 +1,38 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"  # Map container's port 3000 to host's port 3000
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "3001:5000"  # Map container's port 5000 to host's port 5000
+    environment:
+      - MONGO_URL=mongodb://127.0.0.1/todo  # Link to MongoDB service
+    networks:
+      - app-network
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    volumes:
+      - ./data/db:/data/db  # Persist MongoDB data
+    ports:
+      - "27017:27017"  # Expose MongoDB port
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
